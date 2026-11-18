@@ -16,6 +16,7 @@ struct PPSKSwitcherApp: App {
 
 struct MenuBarView: View {
     @ObservedObject var model: PPSKModel
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         Text("Current SSID: \(model.wifiSSID)")
@@ -43,7 +44,10 @@ struct MenuBarView: View {
             Text("Connecting…")
         }
         Divider()
-        SettingsLink {
+        Button {
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            openSettings()
+        } label: {
             Label("Manage PPSK Profiles…", systemImage: "gearshape")
         }
         Button("Request Wi-Fi Scan Permission") { model.requestLocationPermission() }
