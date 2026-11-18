@@ -37,6 +37,12 @@
 		54944C455A3A4314B69CEE40 /* Security.framework in Frameworks */ = {
 			isa = PBXBuildFile; fileRef = D6AE1630DA1C11E193C534B9 /* Security.framework */;
 		};
+		F8F77BB6C48C7CB2734F29A3 /* AppIcon.icon in Resources */ = {
+			isa = PBXBuildFile; fileRef = 4B98652CC85B9458446878DD /* AppIcon.icon */;
+		};
+		4B98652CC85B9458446878DD /* AppIcon.icon */ = {
+			isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>";
+		};
 		44ADE24708B1599FAA59D08C /* PPSKSwitcherApp.swift */ = {
 			isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PPSKSwitcherApp.swift; sourceTree = "<group>";
 		};
@@ -97,7 +103,7 @@
 		};
 		197B258AD4FFFFF03358F7F7 /* PPSKSwitcher */ = {
 			isa = PBXGroup;
-			children = (44ADE24708B1599FAA59D08C /* PPSKSwitcherApp.swift */, 14E98837BFBBB4DEB689326B /* PPSKProfile.swift */, 45FFF83F21CCB2846F4E3F40 /* PPSKCSVImporter.swift */, 6405C345A5A7E7D76E2CE3F3 /* PPSKImportService.swift */, 1844DC690D5B2FDC670D84FC /* CredentialStore.swift */, 59B4ADE92559B7A6E092DBC7 /* WiFiSwitcher.swift */, 9F2616FC6385DC00C555D5AF /* PPSKModel.swift */, 6A2E3528D559145D1BDCAA36 /* SettingsView.swift */, E417BE6624CABAEF9C07CE5A /* Info.plist */);
+			children = (44ADE24708B1599FAA59D08C /* PPSKSwitcherApp.swift */, 14E98837BFBBB4DEB689326B /* PPSKProfile.swift */, 45FFF83F21CCB2846F4E3F40 /* PPSKCSVImporter.swift */, 6405C345A5A7E7D76E2CE3F3 /* PPSKImportService.swift */, 1844DC690D5B2FDC670D84FC /* CredentialStore.swift */, 59B4ADE92559B7A6E092DBC7 /* WiFiSwitcher.swift */, 9F2616FC6385DC00C555D5AF /* PPSKModel.swift */, 6A2E3528D559145D1BDCAA36 /* SettingsView.swift */, E417BE6624CABAEF9C07CE5A /* Info.plist */, 4B98652CC85B9458446878DD /* AppIcon.icon */);
 			path = PPSKSwitcher;
 			sourceTree = "<group>";
 		};
@@ -137,7 +143,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3380EEE84471D9E5131E9C14 /* Resources */ = {
-			isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;
+			isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (F8F77BB6C48C7CB2734F29A3 /* AppIcon.icon in Resources */); runOnlyForDeploymentPostprocessing = 0;
 		};
 		0F949396F6A0587CE9B105B0 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -168,7 +174,7 @@
 		E48692D59BA04F1E0B614373 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-			ASSETCATALOG_COMPILER_APPICON_NAME = "";
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 			CODE_SIGN_STYLE = Automatic;
 			CODE_SIGN_IDENTITY = "-";
 			CURRENT_PROJECT_VERSION = 2;
@@ -185,7 +191,7 @@
 		3066DFBC92374C58F90FE547 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-			ASSETCATALOG_COMPILER_APPICON_NAME = "";
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 			CODE_SIGN_STYLE = Automatic;
 			CODE_SIGN_IDENTITY = "-";
 			CURRENT_PROJECT_VERSION = 2;

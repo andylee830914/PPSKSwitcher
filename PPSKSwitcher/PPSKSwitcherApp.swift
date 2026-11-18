@@ -47,6 +47,7 @@ struct MenuBarView: View {
         }
         Divider()
         Button {
+            NSApplication.shared.setActivationPolicy(.regular)
             NSApplication.shared.activate(ignoringOtherApps: true)
             openSettings()
         } label: {

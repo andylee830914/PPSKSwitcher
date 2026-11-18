@@ -109,8 +109,15 @@ struct SettingsView: View {
             .formStyle(.grouped)
         }
         .frame(width: 815, height: 535)
-        .onAppear { loadFields() }
-        .onChange(of: selection) { _ in loadFields() }
+        .onAppear {
+            NSApplication.shared.setActivationPolicy(.regular)
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            loadFields()
+        }
+        .onDisappear {
+            NSApplication.shared.setActivationPolicy(.accessory)
+        }
+        .onChange(of: selection) { loadFields() }
         .sheet(isPresented: $showImportSheet, onDismiss: {
             // Release plaintext CSV secrets from SwiftUI state after confirmation.
             importDocument = nil

@@ -1,0 +1,1 @@
+Built-in image_gen edit. Preserve network nodes, arrows, blue/teal identity. Replace inset rounded tile and transparent exterior with an opaque full-bleed square gradient; no perimeter bevel, outer shadow, border or text. System applies final masking.

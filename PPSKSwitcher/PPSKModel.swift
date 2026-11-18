@@ -168,8 +168,10 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        refreshDetails()
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor [weak self] in
+            self?.refreshDetails()
+        }
     }
 
     func openLocationSettings() {

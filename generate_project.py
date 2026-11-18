@@ -15,6 +15,8 @@ for fn in swift_files:
     obj(bld(fn), fn+" in Sources", f'\t\t\tisa = PBXBuildFile; fileRef = {ref(fn)} /* {fn} */;')
 for fw in frameworks:
     obj(bld(fw), fw+".framework in Frameworks", f'\t\t\tisa = PBXBuildFile; fileRef = {ref(fw)} /* {fw}.framework */;')
+obj(bld('AppIcon.icon'), 'AppIcon.icon in Resources', f'\t\t\tisa = PBXBuildFile; fileRef = {ref("AppIcon.icon")} /* AppIcon.icon */;')
+obj(ref('AppIcon.icon'), 'AppIcon.icon', '\t\t\tisa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>";')
 for fn in swift_files:
     obj(ref(fn), fn, f'\t\t\tisa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = {fn}; sourceTree = "<group>";')
 obj(ref('Info.plist'), 'Info.plist', '\t\t\tisa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>";')
@@ -37,7 +39,7 @@ obj(group,'Project files',f'''\t\t\tisa = PBXGroup;
 \t\t\tchildren = ({code_group} /* PPSKSwitcher */, {fw_group} /* Frameworks */, {product_group} /* Products */);
 \t\t\tsourceTree = "<group>";''')
 obj(code_group,'PPSKSwitcher',f'''\t\t\tisa = PBXGroup;
-\t\t\tchildren = ({", ".join(ref(x)+" /* "+x+" */" for x in swift_files + ["Info.plist"])});
+\t\t\tchildren = ({", ".join(ref(x)+" /* "+x+" */" for x in swift_files + ["Info.plist", "AppIcon.icon"])});
 \t\t\tpath = PPSKSwitcher;
 \t\t\tsourceTree = "<group>";''')
 obj(fw_group,'Frameworks',f'''\t\t\tisa = PBXGroup;
@@ -65,7 +67,7 @@ obj(fwphase,'Frameworks',f'''\t\t\tisa = PBXFrameworksBuildPhase;
 \t\t\tbuildActionMask = 2147483647;
 \t\t\tfiles = ({", ".join(bld(x)+" /* "+x+".framework in Frameworks */" for x in frameworks)});
 \t\t\trunOnlyForDeploymentPostprocessing = 0;''')
-obj(resources,'Resources','\t\t\tisa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;')
+obj(resources,'Resources',f'\t\t\tisa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({bld("AppIcon.icon")} /* AppIcon.icon in Resources */); runOnlyForDeploymentPostprocessing = 0;')
 common='''\t\t\tALWAYS_SEARCH_USER_PATHS = NO;
 \t\t\tCLANG_ENABLE_MODULES = YES;
 \t\t\tSDKROOT = macosx;
@@ -82,7 +84,7 @@ for key, name, opt in [(debug,'Debug','-Onone'),(release,'Release','-O')]:
 for key, name in [(tdebug,'Debug'),(trelease,'Release')]:
     obj(key,name,f'''\t\t\tisa = XCBuildConfiguration;
 \t\t\tbuildSettings = {{
-\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = "";
+\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\tCODE_SIGN_STYLE = Automatic;
 \t\t\tCODE_SIGN_IDENTITY = "-";
 \t\t\tCURRENT_PROJECT_VERSION = 2;
