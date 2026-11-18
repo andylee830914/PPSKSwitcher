@@ -50,7 +50,7 @@ enum WiFiSwitcher {
                 Thread.sleep(forTimeInterval: 1)
                 let ip = ipv4Address(interface: interfaceName)
                 lastIP = ip
-                if !prefix.isEmpty, let ip, ip.hasPrefix(prefix), wifi.ssid() == profile.ssid {
+                if !prefix.isEmpty, let ip, (IPv4Subnet(prefix)?.contains(ip) == true), wifi.ssid() == profile.ssid {
                     return ConnectionOutcome(result: .verified,
                                              message: "Connected",
                                              ipAddress: ip)
@@ -59,11 +59,11 @@ enum WiFiSwitcher {
 
             if prefix.isEmpty {
                 return ConnectionOutcome(result: .unverified,
-                                         message: "Connection attempted with the selected password\(lastIP.map { ", IP: \($0)" } ?? ""), but no expected IPv4 prefix is set, so the VLAN cannot be verified.",
+                                         message: "Connection attempted with the selected password\(lastIP.map { ", IP: \($0)" } ?? ""), but no expected IPv4 subnet is set, so the VLAN cannot be verified.",
                                          ipAddress: lastIP)
             }
             return ConnectionOutcome(result: .failed,
-                                     message: "Could not verify VLAN: expected \(prefix)*, current IPv4 \(lastIP ?? "unknown"). macOS may have reused a saved password, or DHCP may not have updated yet.",
+                                     message: "Could not verify VLAN: expected \(prefix), current IPv4 \(lastIP ?? "unknown"). macOS may have reused a saved password, or DHCP may not have updated yet.",
                                      ipAddress: lastIP)
         } catch {
             let nsError = error as NSError

@@ -11,6 +11,24 @@ struct CSVTests {
         func importDoc(_ raw: String) throws -> PPSKCSVDocument {
             try PPSKCSVImporter.parse(data: Data(raw.utf8))
         }
+        let subnet = IPv4Subnet("192.168.0.0/24")!
+        verify(subnet.contains("192.168.0.1"), "CIDR includes address")
+        verify(subnet.contains("192.168.0.0") && subnet.contains("192.168.0.255"), "CIDR boundaries included")
+        verify(!subnet.contains("192.168.1.1"), "CIDR excludes adjacent subnet")
+        verify(IPv4Subnet("192.168.0.0/23")!.contains("192.168.1.254"), "mask spans octet boundary")
+        verify(!IPv4Subnet("192.168.0.128/25")!.contains("192.168.0.127"), "partial octet mask")
+        verify(IPv4Subnet("192.168.0.42/24")!.contains("192.168.0.1"), "host bits masked")
+        verify(IPv4Subnet("0.0.0.0/0")!.contains("255.255.255.255"), "zero prefix length")
+        verify(IPv4Subnet("192.168.0.1/32")!.contains("192.168.0.1") && !IPv4Subnet("192.168.0.1/32")!.contains("192.168.0.2"), "single address subnet")
+        verify(!subnet.contains("Unknown") && !subnet.contains("192.168.0.256"), "invalid DHCP address rejected")
+        for invalid in ["192.168.0.", "192.168.0.0/33", "192.168.0.0/-1", "256.0.0.0/24", "192.168.0/24", "192.168.0.0/", "192.168.0.0/+24"] {
+            verify(IPv4Subnet(invalid) == nil, "invalid CIDR rejected")
+            do {
+                try PPSKProfile.validate(name: "Test", ssid: "Test", prefix: invalid, password: nil, isNew: false)
+                fatalError("FAILED: invalid CIDR accepted by profile")
+            } catch ProfileValidationError.invalidIPPrefix { checks += 1 }
+        }
+        try PPSKProfile.validate(name: "Test", ssid: "Test", prefix: "192.168.0.0/24", password: nil, isNew: false)
         verify(PPSKCSVImporter.suggestedSSID(from: URL(fileURLWithPath: "/tmp/llwge_VLAN-ppsk.csv")) == "llwge_VLAN", "SSID from UniFi filename")
         verify(PPSKCSVImporter.suggestedSSID(from: URL(fileURLWithPath: "/tmp/Home-ppsk-ppsk.csv")) == "Home-ppsk", "strip only final suffix")
         for filename in ["export.csv", "-ppsk.csv", String(repeating: "a", count: 33) + "-ppsk.csv"] {
@@ -49,12 +67,12 @@ struct CSVTests {
             }
         }
 
-        let old = PPSKProfile(name: "IoT", ssid: "Main", expectedIPv4Prefix: "192.168.2.")
+        let old = PPSKProfile(name: "IoT", ssid: "Main", expectedIPv4Prefix: "192.168.2.0/24")
         let doc = try importDoc("VLAN ID,Password,Network\n10,abcdefghijk,IoT\n11,morepassword,NAS\n")
         let first = try PPSKImportPlanner.plan(doc, ssid: "Main", existing: [old])
         verify(first.count == 2, "planned changes")
         verify(first[0].profile.id == old.id, "migrated profile UUID preserved")
-        verify(first[0].profile.expectedIPv4Prefix == "192.168.2.", "IP prefix preserved")
+        verify(first[0].profile.expectedIPv4Prefix == "192.168.2.0/24", "IP prefix preserved")
         verify(first[0].profile.vlanID == 10, "VLAN ID applied")
         verify(first[0].isUpdate && !first[1].isUpdate, "update/create plan")
         let second = try PPSKImportPlanner.plan(doc, ssid: "Main", existing: first.map(\.profile))

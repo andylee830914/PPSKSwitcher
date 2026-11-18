@@ -2,7 +2,7 @@
 
 A lightweight, native **macOS menu bar app** for switching between UniFi **Private Pre-Shared Keys (PPSK)** on a **single Wi-Fi SSID**, where each password maps to a different VLAN. Written in SwiftUI with Apple's CoreWLAN and Keychain APIs. No third-party dependencies or cloud services.
 
-> **Experimental:** macOS may reuse a saved Wi-Fi password or refuse same-SSID reauthentication via CoreWLAN. A successful Wi-Fi association does **not** prove that you switched VLANs. The app can compare a DHCP IPv4 prefix to provide a limited verification signal. Actual behavior on macOS 27 and your UniFi setup must be tested.
+> **Experimental:** macOS may reuse a saved Wi-Fi password or refuse same-SSID reauthentication via CoreWLAN. A successful Wi-Fi association does **not** prove that you switched VLANs. The app can compare a DHCP IPv4 subnet to provide a limited verification signal. Actual behavior on macOS 27 and your UniFi setup must be tested.
 
 ## Features
 
@@ -10,7 +10,7 @@ A lightweight, native **macOS menu bar app** for switching between UniFi **Priva
 - Import UniFi PPSK exports with the `VLAN ID`, `Password`, and `Network` columns.
 - Switch profiles from the macOS menu bar using CoreWLAN.
 - Keep each password in **macOS Keychain**, separate from non-secret profile metadata.
-- Check the Wi-Fi interface's IPv4 address against an optional expected DHCP subnet prefix.
+- Check the Wi-Fi interface's IPv4 address against an optional expected DHCP subnet (CIDR).
 - Offer a manual fallback: copy a password and open macOS Wi-Fi Settings.
 - Never automatically forget known macOS Wi-Fi networks or modify their saved system passwords.
 
@@ -56,7 +56,7 @@ The example uses **dummy passwords only**. Do not commit a real UniFi export to 
 3. Enter the **shared Wi-Fi SSID**. The UniFi CSV does not include an SSID column.
 4. Click **Import N PPSK Entries**.
 
-`Network` becomes the profile name. `VLAN ID` is displayed as a label; it **does not** configure an 802.1Q VLAN interface on the Mac. A blank VLAN ID remains *Unspecified*. When an existing profile matches the same SSID and network name—or a unique VLAN ID—the imported password updates the existing profile while preserving its saved UUID and IP verification prefix. Ambiguous matches are rejected.
+`Network` becomes the profile name. `VLAN ID` is displayed as a label; it **does not** configure an 802.1Q VLAN interface on the Mac. A blank VLAN ID remains *Unspecified*. When an existing profile matches the same SSID and network name—or a unique VLAN ID—the imported password updates the existing profile while preserving its saved UUID and IP verification subnet. Ambiguous matches are rejected.
 
 The parser accepts UTF-8, UTF-8 BOM, quoted fields, embedded commas/newlines, and CRLF. CSV validation happens before applying changes. If writing passwords to Keychain fails partway through, the app attempts to restore prior Keychain values; rollback itself can fail, in which case the app warns you.
 
@@ -64,13 +64,13 @@ The parser accepts UTF-8, UTF-8 BOM, quoted fields, embedded commas/newlines, an
 
 ## Verifying a switch
 
-For example, if a VLAN is expected to use the `192.168.2.x` subnet, set its **Expected DHCP IPv4 Prefix** to `192.168.2.`. After reconnecting, the app checks whether the active Wi-Fi interface has the same SSID and an IPv4 address beginning with this prefix.
+For example, if a VLAN is expected to use the `192.168.2.x` subnet, set its **Expected DHCP IPv4 Subnet** to `192.168.2.0/24`. After reconnecting, the app checks whether the active Wi-Fi interface has the same SSID and an IPv4 address within this CIDR subnet, calculated using its subnet mask.
 
-- **Verified** means only that SSID and DHCP IPv4 prefix matched. It is **not cryptographic proof** of the PPSK or actual UniFi Client VLAN.
-- **Unverified** means no IPv4 prefix was configured; the app cannot verify the VLAN.
+- **Verified** means only that SSID and DHCP IPv4 subnet matched. It is **not cryptographic proof** of the PPSK or actual UniFi Client VLAN.
+- **Unverified** means no IPv4 subnet was configured; the app cannot verify the VLAN.
 - **Failed** may mean an association error, a stale DHCP lease, the wrong VLAN, or a macOS restriction.
 
-If several VLANs share the same IP subnet, prefix matching cannot distinguish them. Confirm the real Client VLAN and DHCP lease in UniFi when troubleshooting.
+If several VLANs share the same IP subnet, subnet matching cannot distinguish them. Confirm the real Client VLAN and DHCP lease in UniFi when troubleshooting.
 
 ## macOS limitations and manual fallback
 
@@ -80,7 +80,7 @@ If the automatic attempt fails, use **Manual Fallback: Copy Password and Open Wi
 
 ## Privacy and security
 
-- Each secret is stored in a Keychain generic-password item keyed by profile UUID. Profile names, SSIDs, VLAN IDs, and verification prefixes are saved in UserDefaults.
+- Each secret is stored in a Keychain generic-password item keyed by profile UUID. Profile names, SSIDs, VLAN IDs, and verification subnets are saved in UserDefaults.
 - PPSKs are not intentionally written to logs, command-line arguments, app settings, or the project source.
 - The app requests location permission for Wi-Fi SSID and scanning APIs; it does not ask for GPS coordinates or send data to a server.
 - No administrator/root privileges are requested, and no `sudo` calls are used.

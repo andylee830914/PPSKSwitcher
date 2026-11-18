@@ -4,7 +4,7 @@ struct PPSKProfile: Identifiable, Codable, Equatable {
     var id: UUID
     var name: String
     var ssid: String
-    /// Optional DHCP address prefix, e.g. "192.168.2.".
+    /// Optional DHCP IPv4 subnet in CIDR notation, e.g. "192.168.0.0/24".
     /// This is used to verify the VLAN, not to assign a static IP.
     var expectedIPv4Prefix: String
     /// UniFi VLAN ID (nil for the default/unspecified VLAN).
@@ -39,7 +39,7 @@ enum ProfileValidationError: LocalizedError {
         case .passwordRequired:
             return "A password is required to create a profile."
         case .invalidIPPrefix:
-            return "Enter an IPv4 prefix such as 192.168.2., or leave it blank."
+            return "Enter an IPv4 subnet such as 192.168.0.0/24, or leave it blank."
         case .invalidVLANID:
             return "VLAN ID must be between 1 and 4094, or blank."
         }
@@ -78,15 +78,40 @@ extension PPSKProfile {
         if let vlanID, !(1...4094).contains(vlanID) {
             throw ProfileValidationError.invalidVLANID
         }
-        if !prefix.isEmpty {
-            let fields = prefix.split(separator: ".", omittingEmptySubsequences: false)
-            guard fields.count == 4, fields.last == "",
-                  fields.dropLast().allSatisfy({ part in
-                      guard let number = Int(part) else { return false }
-                      return !part.isEmpty && number >= 0 && number <= 255
-                  }) else {
-                throw ProfileValidationError.invalidIPPrefix
-            }
+        if !prefix.isEmpty && IPv4Subnet(prefix) == nil {
+            throw ProfileValidationError.invalidIPPrefix
         }
+    }
+}
+
+/// Compares complete IPv4 addresses using the CIDR subnet mask.
+struct IPv4Subnet {
+    private let network: UInt32
+    private let mask: UInt32
+
+    init?(_ cidr: String) {
+        let parts = cidr.split(separator: "/", omittingEmptySubsequences: false)
+        guard parts.count == 2, let address = Self.address(String(parts[0])),
+              !parts[1].isEmpty, parts[1].utf8.allSatisfy({ (48...57).contains($0) }),
+              let bits = Int(parts[1]), (0...32).contains(bits) else { return nil }
+        mask = bits == 0 ? 0 : UInt32.max << (32 - bits)
+        network = address & mask
+    }
+
+    func contains(_ ip: String) -> Bool {
+        guard let address = Self.address(ip) else { return false }
+        return address & mask == network
+    }
+
+    private static func address(_ ip: String) -> UInt32? {
+        let octets = ip.split(separator: ".", omittingEmptySubsequences: false)
+        guard octets.count == 4 else { return nil }
+        var result: UInt32 = 0
+        for octet in octets {
+            guard !octet.isEmpty, octet.utf8.allSatisfy({ (48...57).contains($0) }),
+                  let value = UInt32(octet), value <= 255 else { return nil }
+            result = (result << 8) | value
+        }
+        return result
     }
 }

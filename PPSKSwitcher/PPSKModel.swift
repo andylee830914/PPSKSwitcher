@@ -208,7 +208,7 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 self.ipAddress = details.ipAddress
                 if let id = self.lastVerifiedProfileID,
                    let profile = self.profiles.first(where: { $0.id == id }),
-                   (details.ssid != profile.ssid || !details.ipAddress.hasPrefix(profile.expectedIPv4Prefix)) {
+                   (details.ssid != profile.ssid || IPv4Subnet(profile.expectedIPv4Prefix)?.contains(details.ipAddress) != true) {
                     self.lastVerifiedProfileID = nil
                 }
             }

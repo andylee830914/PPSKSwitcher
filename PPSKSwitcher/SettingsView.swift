@@ -61,8 +61,8 @@ struct SettingsView: View {
                     TextField("Shared Wi-Fi SSID", text: $ssid)
                     SecureField(selection == nil ? "Wi-Fi Password" : "New Password (leave blank to keep current)", text: $password)
                     TextField("VLAN ID (optional, e.g. 20)", text: $vlanID)
-                    TextField("Expected DHCP IPv4 Prefix (e.g. 192.168.2.)", text: $expectedPrefix)
-                    Text("VLAN ID is a label, not an 802.1Q configuration on your Mac. The IPv4 prefix helps verify the switch.")
+                    TextField("Expected DHCP IPv4 Subnet (e.g. 192.168.0.0/24)", text: $expectedPrefix)
+                    Text("VLAN ID is a label, not an 802.1Q configuration on your Mac. The IPv4 address is checked against this CIDR subnet to verify the switch.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -144,7 +144,7 @@ struct SettingsView: View {
                     }
                 }
                 .frame(minHeight: 170)
-                Text("Existing profiles are updated when SSID and Network name match (or a VLAN ID is unique). Their IPv4 prefixes are preserved. The original plaintext CSV remains on disk; store or delete it securely.")
+                Text("Existing profiles are updated when SSID and Network name match (or a VLAN ID is unique). Their IPv4 subnets are preserved. The original plaintext CSV remains on disk; store or delete it securely.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if !importError.isEmpty {
