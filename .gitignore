@@ -1,0 +1,41 @@
+# Xcode / Swift build outputs
+.build/
+DerivedData/
+.swiftpm/
+*.xcresult
+*.xcarchive
+*.app
+*.dSYM/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# macOS / editors
+.DS_Store
+.AppleDouble/
+.idea/
+.vscode/
+*.swp
+*~
+
+# Secrets and locally exported network configurations
+*.csv
+*.tsv
+*.mobileconfig
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.key
+*.pem
+*.cer
+*.provisionprofile
+Secrets.xcconfig
+Local.xcconfig
+
+# Local diagnostic artifacts
+*.log
+*.pcap
+*.pcapng

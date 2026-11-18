@@ -1,0 +1,25 @@
+name: Swift CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test CSV parsing and profile import
+        run: ./Tests/run-tests.sh
+      - name: Build macOS app (unsigned)
+        run: |
+          xcodebuild \
+            -project PPSKSwitcher.xcodeproj \
+            -scheme PPSKSwitcher \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            build

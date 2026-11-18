@@ -1,0 +1,55 @@
+import SwiftUI
+
+@main
+struct PPSKSwitcherApp: App {
+    @StateObject private var model = PPSKModel()
+
+    var body: some Scene {
+        MenuBarExtra("PPSK Switcher", systemImage: "wifi") {
+            MenuBarView(model: model)
+        }
+        Settings {
+            SettingsView(model: model)
+        }
+    }
+}
+
+struct MenuBarView: View {
+    @ObservedObject var model: PPSKModel
+
+    var body: some View {
+        Text("Current SSID: \(model.wifiSSID)")
+        Text("Wi-Fi IPv4: \(model.ipAddress)")
+        Divider()
+        if model.profiles.isEmpty {
+            Text("No PPSK profiles configured")
+        } else {
+            ForEach(model.profiles) { profile in
+                Button {
+                    model.connect(profile.id)
+                } label: {
+                    if model.lastVerifiedProfileID == profile.id {
+                        Label("\(profile.name) · Verified", systemImage: "checkmark.circle.fill")
+                    } else {
+                        Text("\(profile.name)  ·  \(profile.ssid)")
+                    }
+                }
+                .disabled(model.isConnecting)
+            }
+        }
+        Divider()
+        Text(model.status)
+        if model.isConnecting {
+            Text("Connecting…")
+        }
+        Divider()
+        SettingsLink {
+            Label("Manage PPSK Profiles…", systemImage: "gearshape")
+        }
+        Button("Request Wi-Fi Scan Permission") { model.requestLocationPermission() }
+        Button("Refresh Wi-Fi Status") { model.refreshDetails() }
+        Button("Open macOS Wi-Fi Settings") { model.openWiFiSettings() }
+        Divider()
+        Button("Quit PPSK Switcher") { NSApplication.shared.terminate(nil) }
+    }
+}
