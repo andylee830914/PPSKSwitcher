@@ -47,6 +47,14 @@ enum ProfileValidationError: LocalizedError {
 }
 
 extension PPSKProfile {
+    /// Infer a profile only when SSID and subnet identify exactly one entry.
+    static func connectedProfileID(in profiles: [PPSKProfile], ssid: String, ipAddress: String) -> UUID? {
+        let matches = profiles.filter {
+            $0.ssid == ssid && IPv4Subnet($0.expectedIPv4Prefix)?.contains(ipAddress) == true
+        }
+        return matches.count == 1 ? matches[0].id : nil
+    }
+
     static func parseVLANID(_ input: String) throws -> Int? {
         let value = input.trimmingCharacters(in: .whitespacesAndNewlines)
         if value.isEmpty { return nil }

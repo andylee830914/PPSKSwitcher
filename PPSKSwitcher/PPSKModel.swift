@@ -25,7 +25,10 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var status = "Add a PPSK profile to get started."
     @Published var wifiSSID = "Checking…"
     @Published var ipAddress = "Checking…"
-    @Published private(set) var lastVerifiedProfileID: UUID?
+    var currentProfileID: UUID? {
+        guard !isConnecting else { return nil }
+        return PPSKProfile.connectedProfileID(in: profiles, ssid: wifiSSID, ipAddress: ipAddress)
+    }
 
     private let settingsKey = "profiles-v1"
     private let locationManager = CLLocationManager()
@@ -113,8 +116,6 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 profiles.append(change.profile)
             }
         }
-        // A former verified profile must be checked again if its PPSK changed.
-        lastVerifiedProfileID = nil
         persist()
         let summary = PPSKImportSummary(created: changes.filter { !$0.isUpdate }.count,
                                         updated: changes.filter { $0.isUpdate }.count)
@@ -125,7 +126,6 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     func deleteProfile(_ id: UUID) throws {
         try CredentialStore.deletePassword(for: id)
         profiles.removeAll { $0.id == id }
-        if lastVerifiedProfileID == id { lastVerifiedProfileID = nil }
         persist()
         status = "Profile deleted."
     }
@@ -144,7 +144,6 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         isConnecting = true
-        lastVerifiedProfileID = nil
         status = "Switching to \(profile.name)…"
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -155,7 +154,6 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 guard let self else { return }
                 self.isConnecting = false
                 self.status = outcome.message
-                self.lastVerifiedProfileID = outcome.result == .verified ? profile.id : nil
                 self.refreshDetails()
             }
         }
@@ -206,11 +204,6 @@ final class PPSKModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 guard let self else { return }
                 self.wifiSSID = details.ssid
                 self.ipAddress = details.ipAddress
-                if let id = self.lastVerifiedProfileID,
-                   let profile = self.profiles.first(where: { $0.id == id }),
-                   (details.ssid != profile.ssid || IPv4Subnet(profile.expectedIPv4Prefix)?.contains(details.ipAddress) != true) {
-                    self.lastVerifiedProfileID = nil
-                }
             }
         }
     }

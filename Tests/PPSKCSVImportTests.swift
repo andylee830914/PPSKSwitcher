@@ -68,6 +68,16 @@ struct CSVTests {
         }
 
         let old = PPSKProfile(name: "IoT", ssid: "Main", expectedIPv4Prefix: "192.168.2.0/24")
+        let other = PPSKProfile(name: "Home", ssid: "Main", expectedIPv4Prefix: "192.168.1.0/24")
+        verify(PPSKProfile.connectedProfileID(in: [old, other], ssid: "Main", ipAddress: "192.168.2.42") == old.id, "identify unique connected profile")
+        verify(PPSKProfile.connectedProfileID(in: [old], ssid: "Guest", ipAddress: "192.168.2.42") == nil, "SSID must match")
+        verify(PPSKProfile.connectedProfileID(in: [old], ssid: "Main", ipAddress: "192.168.3.42") == nil, "subnet must match")
+        let overlap = PPSKProfile(name: "Overlap", ssid: "Main", expectedIPv4Prefix: "192.168.2.0/23")
+        verify(PPSKProfile.connectedProfileID(in: [old, overlap], ssid: "Main", ipAddress: "192.168.2.42") == nil, "overlapping matches are ambiguous")
+        let unset = PPSKProfile(name: "Unset", ssid: "Main")
+        verify(PPSKProfile.connectedProfileID(in: [unset], ssid: "Main", ipAddress: "192.168.2.42") == nil, "missing CIDR is not a match")
+        verify(PPSKProfile.connectedProfileID(in: [old], ssid: "Main", ipAddress: "Not assigned") == nil, "unavailable IP is not a match")
+        verify(PPSKProfile.connectedProfileID(in: [], ssid: "Main", ipAddress: "192.168.2.42") == nil, "empty profiles")
         let doc = try importDoc("VLAN ID,Password,Network\n10,abcdefghijk,IoT\n11,morepassword,NAS\n")
         let first = try PPSKImportPlanner.plan(doc, ssid: "Main", existing: [old])
         verify(first.count == 2, "planned changes")

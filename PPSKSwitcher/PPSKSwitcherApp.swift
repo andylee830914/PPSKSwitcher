@@ -5,7 +5,7 @@ struct PPSKSwitcherApp: App {
     @StateObject private var model = PPSKModel()
 
     var body: some Scene {
-        MenuBarExtra("PPSK Switcher", systemImage: "wifi") {
+        MenuBarExtra("PPSK Switcher", systemImage: model.currentProfileID == nil ? "network.slash" : "network") {
             MenuBarView(model: model)
         }
         Settings {
@@ -25,18 +25,20 @@ struct MenuBarView: View {
         if model.profiles.isEmpty {
             Text("No PPSK profiles configured")
         } else {
-            ForEach(model.profiles) { profile in
-                Button {
-                    model.connect(profile.id)
-                } label: {
-                    if model.lastVerifiedProfileID == profile.id {
-                        Label("\(profile.name) · Verified", systemImage: "checkmark.circle.fill")
-                    } else {
-                        Text("\(profile.name)  ·  \(profile.ssid)")
-                    }
+            Picker("PPSK Profiles", selection: Binding<UUID?>(
+                get: { model.currentProfileID },
+                set: { id in
+                    guard let id, id != model.currentProfileID else { return }
+                    model.connect(id)
                 }
-                .disabled(model.isConnecting)
+            )) {
+                ForEach(model.profiles) { profile in
+                    Text("\(profile.name)  ·  \(profile.ssid)")
+                        .tag(Optional(profile.id))
+                }
             }
+            .pickerStyle(.inline)
+            .disabled(model.isConnecting)
         }
         Divider()
         Text(model.status)

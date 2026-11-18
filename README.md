@@ -66,7 +66,7 @@ The parser accepts UTF-8, UTF-8 BOM, quoted fields, embedded commas/newlines, an
 
 For example, if a VLAN is expected to use the `192.168.2.x` subnet, set its **Expected DHCP IPv4 Subnet** to `192.168.2.0/24`. After reconnecting, the app checks whether the active Wi-Fi interface has the same SSID and an IPv4 address within this CIDR subnet, calculated using its subnet mask.
 
-- **Verified** means only that SSID and DHCP IPv4 subnet matched. It is **not cryptographic proof** of the PPSK or actual UniFi Client VLAN.
+- **Connected** and a checkmark identify the single saved profile matching the current SSID and DHCP IPv4 subnet. Detection runs at startup, on manual refresh, and every eight seconds; edits to profiles also update the match. Missing or overlapping matches leave all profiles unmarked. This is **not cryptographic proof** of the PPSK or actual UniFi Client VLAN.
 - **Unverified** means no IPv4 subnet was configured; the app cannot verify the VLAN.
 - **Failed** may mean an association error, a stale DHCP lease, the wrong VLAN, or a macOS restriction.
 
