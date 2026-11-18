@@ -87,7 +87,7 @@ for key, name in [(tdebug,'Debug'),(trelease,'Release')]:
 \t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\tCODE_SIGN_STYLE = Automatic;
 \t\t\tCODE_SIGN_IDENTITY = "-";
-\t\t\tCURRENT_PROJECT_VERSION = 2;
+\t\t\tCURRENT_PROJECT_VERSION = 1;
 \t\t\tGENERATE_INFOPLIST_FILE = NO;
 \t\t\tINFOPLIST_FILE = PPSKSwitcher/Info.plist;
 \t\t\tLD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");

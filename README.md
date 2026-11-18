@@ -11,6 +11,27 @@ Requires macOS 14+ and Xcode. Open `PPSKSwitcher.xcodeproj` and click **Run**, o
 open .build/PPSKSwitcher.app
 ```
 
+To build a DMG with the app and an Applications shortcut:
+
+```bash
+./package-dmg.sh
+```
+
+The output is `.build/PPSKSwitcher-<version>.dmg`. Users open it and drag the app to **Applications**. Packaging does not add Developer ID signing or Apple notarization.
+
+## If macOS blocks the app
+
+The current build uses an ad-hoc signature and is not notarized by Apple. If macOS says the developer cannot be verified or Apple cannot check the app, follow these steps only for a copy you trust:
+
+1. Move `PPSKSwitcher.app` to **Applications** and try opening it once.
+2. Dismiss the warning, then open **System Settings → Privacy & Security**.
+3. Scroll to **Security**, find the PPSKSwitcher notice, and click **Open Anyway** (強制打開).
+4. Authenticate if prompted, then click **Open** to confirm.
+
+This saves an exception for this app. A replacement build may require approval again. If a managed Mac does not offer **Open Anyway**, contact your administrator.
+
+See [Apple’s instructions](https://support.apple.com/en-us/102445). These steps apply to developer-verification warnings; if macOS reports malware or a damaged app, obtain a fresh trusted copy instead.
+
 ## Set up profiles
 
 1. Open the app’s menu bar icon → **Manage PPSK Profiles…**.
