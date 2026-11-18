@@ -40,6 +40,18 @@ enum PPSKCSVError: LocalizedError {
 }
 
 enum PPSKCSVImporter {
+    /// UniFi names exports <SSID>-ppsk.csv; preserve the SSID's spelling.
+    static func suggestedSSID(from url: URL) -> String? {
+        guard url.pathExtension.lowercased() == "csv" else { return nil }
+        let stem = url.deletingPathExtension().lastPathComponent
+        let suffix = "-ppsk"
+        guard stem.hasSuffix(suffix) else { return nil }
+        let ssid = String(stem.dropLast(suffix.count))
+        guard !ssid.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              ssid.utf8.count <= 32 else { return nil }
+        return ssid
+    }
+
     /// Reads the current UniFi export format: "VLAN ID,Password,Network".
     /// Empty VLAN IDs remain nil, rather than being silently interpreted as VLAN 1.
     static func parse(data: Data) throws -> PPSKCSVDocument {

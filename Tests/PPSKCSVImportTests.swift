@@ -11,6 +11,11 @@ struct CSVTests {
         func importDoc(_ raw: String) throws -> PPSKCSVDocument {
             try PPSKCSVImporter.parse(data: Data(raw.utf8))
         }
+        verify(PPSKCSVImporter.suggestedSSID(from: URL(fileURLWithPath: "/tmp/llwge_VLAN-ppsk.csv")) == "llwge_VLAN", "SSID from UniFi filename")
+        verify(PPSKCSVImporter.suggestedSSID(from: URL(fileURLWithPath: "/tmp/Home-ppsk-ppsk.csv")) == "Home-ppsk", "strip only final suffix")
+        for filename in ["export.csv", "-ppsk.csv", String(repeating: "a", count: 33) + "-ppsk.csv"] {
+            verify(PPSKCSVImporter.suggestedSSID(from: URL(fileURLWithPath: "/tmp/" + filename)) == nil, "ignore invalid filename suggestion")
+        }
         let basic = try importDoc("VLAN ID,Password,Network\r\n,defaultpass,Default\r\n20,otherpassword,IoT\r\n")
         verify(basic.rows.count == 2, "row count")
         verify(basic.rows[0].vlanID == nil, "blank VLAN stays nil")

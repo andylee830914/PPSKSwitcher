@@ -127,7 +127,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 14) {
                 Text("Import UniFi PPSK CSV")
                     .font(.title3).fontWeight(.semibold)
-                Text("Found \(document.rows.count) PPSK entries. The CSV has no SSID column; enter the shared Wi-Fi SSID.")
+                Text("Found \(document.rows.count) PPSK entries. Confirm the shared Wi-Fi SSID. UniFi export filenames are used to fill it automatically when available.")
                     .foregroundStyle(.secondary)
                 TextField("Shared Wi-Fi SSID (required)", text: $importSSID)
                     .textFieldStyle(.roundedBorder)
@@ -184,7 +184,9 @@ struct SettingsView: View {
             let document = try PPSKCSVImporter.parse(data: data)
             importDocument = document
             let candidates = Set(model.profiles.map(\.ssid))
-            if candidates.count == 1 {
+            if let filenameSSID = PPSKCSVImporter.suggestedSSID(from: url) {
+                importSSID = filenameSSID
+            } else if candidates.count == 1 {
                 importSSID = candidates.first ?? ""
             } else if model.wifiSSID.utf8.count <= 32,
                       !model.wifiSSID.isEmpty,
