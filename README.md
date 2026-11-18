@@ -35,10 +35,10 @@ See [Apple’s instructions](https://support.apple.com/en-us/102445). These step
 ## Set up profiles
 
 1. Open the app’s menu bar icon → **Manage PPSK Profiles…**.
-2. Add a profile, or choose **Import UniFi CSV…**. CSV exports need `VLAN ID`, `Password`, and `Network` columns.
-3. Confirm the SSID. A filename like `llwge_VLAN-ppsk.csv` automatically fills in `llwge_VLAN`.
-4. Set **Expected DHCP IPv4 Subnet**, for example `192.168.0.0/24`, to enable connection detection.
-5. If prompted, allow Location Services so the app can read the SSID and scan Wi-Fi.
+2. Click **Add VLAN Profile**.
+3. Enter the profile name, shared Wi-Fi SSID, and PPSK password.
+4. Optionally enter the VLAN ID and **Expected DHCP IPv4 Subnet** (for example, `192.168.0.0/24`). The subnet enables automatic profile detection.
+5. Click **Save Profile**. Repeat for each PPSK you want to add.
 
 ## Import a UniFi PPSK CSV
 
