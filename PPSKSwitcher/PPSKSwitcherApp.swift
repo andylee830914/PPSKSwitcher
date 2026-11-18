@@ -49,6 +49,7 @@ struct MenuBarView: View {
             openSettings()
         } label: {
             Label("Manage PPSK Profiles…", systemImage: "gearshape")
+                .labelStyle(.titleAndIcon)
         }
         Button("Request Wi-Fi Scan Permission") { model.requestLocationPermission() }
         Button("Refresh Wi-Fi Status") { model.refreshDetails() }
